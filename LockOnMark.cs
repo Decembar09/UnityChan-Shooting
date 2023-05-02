@@ -18,7 +18,7 @@ public class LockOnMark : MonoBehaviour
     [SerializeField]private Vector3 _worldOffset=new Vector3(0f, 0f,0f);
 
     private Vector2 _targetScreenPos;
-    private Vector2 uiLocalPos;
+    //private Vector2 uiLocalPos;
     private GameObject _lockOnTarget;
     private string _lockOnTargetTag; 
     private float scale = 3.0f;
@@ -47,12 +47,13 @@ public class LockOnMark : MonoBehaviour
         }
 
         _parentUI = GetComponentInParent<RectTransform>();
-        //一番上の親に付いているコンポーネントを取得する。Campas
+        //一番上の親に付いているコンポーネントを取得する。Canvas
         //子のコンポーネントはのGetComponentChildren<RectTransform>();
 
         //_parentUI = _targetUI.parent.GetComponent<RectTransform>();
         //_parentUI = this.GetComponent<RectTransform>();
-        //このcontextでKetword "this"は使えない。理由は不明。
+        //このcontextでKeyword "this"は使えない。理由は不明。
+        Debug.Log("_parentUI  " + _parentUI);
     }
 
     void Update()
@@ -83,19 +84,18 @@ public class LockOnMark : MonoBehaviour
 
         /*
          * オブジェクトと見かけ上同じ位置にUIを表示するためには
-         *オブジェクトのワールド座標→スクリーン座標→TransFormRectのローカル座標
-         *の順に座標変換する必要があります。
+         * オブジェクトのワールド座標→スクリーン座標→TransFormRectのローカル座標
+         * の順に座標変換する必要があります。
          * このとき、カメラ背後に位置するオブジェクトもスクリーン座標に投影されるため
          * 背後のものを非表示にしたい場合は前後判定を行う必要があります。
          */
-        
-        
-        //try{
-        Debug.Log("_lockOnTargetTag  " + _lockOnTargetTag);
 
         _lockOnTarget = GameObject.FindGameObjectWithTag(_lockOnTargetTag);
-
-        if (_lockOnTarget == null) { Destroy(this.gameObject); }
+  
+        if (_lockOnTarget == null) {
+            Debug.Log("this  " + this.gameObject);
+            Destroy(this.gameObject);
+        }
 
         _target = _lockOnTarget.transform;
 
@@ -114,14 +114,17 @@ public class LockOnMark : MonoBehaviour
         _targetScreenPos = _targetCamera.WorldToScreenPoint(targetWorldPos);
         //public Vector3 WorldToScreenPoint(Vector3 position);
 
-         //Debug.Log(_parentUI, transform);
-         //Debug.Log(_targetCamera);
+        //Debug.Log("_parentUI.transform " +_parentUI.transform);
+        //Debug.Log("_targetScreenPos     " +_targetScreenPos);
+        //Debug.Log("_targetCamera        " +_targetCamera);
+         //Vector2 uiLocalPos;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             _parentUI,
             _targetScreenPos,
-            _targetCamera,//オーバーレイモードの場合null
-            out uiLocalPos);
+            null,//オーバーレイモードの場合null
+            out var uiLocalPos
+        );
 
         /*public static bool ScreenPointToLocalPointInRectangle(
          * RectTransform rect, 変換先のRectTransFormローカル座標の親を指定します。
@@ -131,13 +134,14 @@ public class LockOnMark : MonoBehaviour
          * );
          */
 
+        //Debug.Log("LocOnMark.cs uiLocalPos  " + uiLocalPos);
+
         this.transform.localPosition =  uiLocalPos;
          //_targetUI.localPosition =  uiLocalPos;
             //this.localPosition =  uiLocalPos;
         //Debug.Log("_targetScreenPos" + _targetScreenPos);
         //Debug.Log("_targetUI.localPosition" + this.transform.localPosition);
-        //}catch(IOException e){Debug.Log("Exception" + e);}
-        //}catch(NullReferenceException e){Debug.Log("Exception" + e);}
+
     }
     public void Delete() { Destroy(this.gameObject); }
 

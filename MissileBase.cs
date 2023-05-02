@@ -6,9 +6,9 @@ public class MissileBase : MonoBehaviour
 {
     
     [SerializeField]private GameObject _bombEffect;
-    private float _shotLifeTimer = 5.0f;//C#で少数を使う場合は「f」を入れる
+    private float _shotLifeTimer = 10.0f;//C#で少数を使う場合は「f」を入れる
     private GameObject _lockOnObject;
-   
+    private Rigidbody shotRigidBody;
 
     // Update is called once per frame
     void Update()
@@ -24,11 +24,10 @@ public class MissileBase : MonoBehaviour
         if (_lockOnObject != null)
         {
             this.gameObject.transform.LookAt(_lockOnObject.transform.localPosition);
+
+            shotRigidBody = this.gameObject.GetComponent<Rigidbody>();//Objectに入っているComponentを取得
+            shotRigidBody.AddForce(this.transform.forward * 100);//AddFoceメソッドで弾が発射＆移動
         }
-        
-        //AddFoceメソッドで弾が発射＆移動
-        //Rigidbody shotRigidBody = this.gameObject.GetComponent<Rigidbody>();//Objectに入っているComponentを取得
-        //shotRigidBody.AddForce(this.transform.forward * 100);
 
     }
 
@@ -42,15 +41,11 @@ public class MissileBase : MonoBehaviour
        }//文字列の比較では==を使う
     }
 
-//    public static MissileBase GetInstance()
-//    { return _instance; }
 
     public void SetTarget(string tagName)
     {
-
-        Debug.Log("Target_tagName IN Missile  " + tagName);
-
         _lockOnObject = GameObject.FindGameObjectWithTag(tagName);
+        Debug.Log("MissileBase Target_tagName IN Missile  " + tagName);
     }
     
 }

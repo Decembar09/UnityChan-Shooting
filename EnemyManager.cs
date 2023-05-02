@@ -8,7 +8,7 @@ public class EnemyManager : MonoBehaviour
 {
     [SerializeField]
     private EnemyBase _originalEnemy;
-    private int stage = 0;
+    //private int stage = 0;
     private int Prehab_Num = 0;
     private float _createTimer = 0;
 
