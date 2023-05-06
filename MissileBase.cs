@@ -6,7 +6,7 @@ public class MissileBase : MonoBehaviour
 {
     
     [SerializeField]private GameObject _bombEffect;
-    private float _shotLifeTimer = 10.0f;//C#で少数を使う場合は「f」を入れる
+    private float _shotLifeTimer = 5.0f;//C#で少数を使う場合は「f」を入れる
     private GameObject _lockOnObject;
     private Rigidbody shotRigidBody;
 
@@ -45,7 +45,11 @@ public class MissileBase : MonoBehaviour
     public void SetTarget(string tagName)
     {
         _lockOnObject = GameObject.FindGameObjectWithTag(tagName);
-        Debug.Log("MissileBase Target_tagName IN Missile  " + tagName);
+        //Debug.Log("MissileBase Target_tagName IN Missile  " + tagName);
     }
-    
+    public void SetTargetObject(GameObject target)
+    {
+        _lockOnObject = target;
+        //Debug.Log("MissileBase Target_tagName IN Missile  " + tagName);
+    }
 }

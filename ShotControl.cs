@@ -22,8 +22,9 @@ public class ShotControl : MonoBehaviour
 
     //[SerializeField]private MissileBase[] _missileObject = new MissileBase[5];
     //private GameObject[] lockOnMarks = new GameObjectk[5];
-
+    private GameObject[] lockOnEnemyObjects = new GameObject[5];
     private string[] lockOnObjects = new string[5] {"","","","",""};
+
     private int targetNum = 0;
     
     private Vector3 _shotPositionCorrection = new Vector3(0, 1, 2);
@@ -34,7 +35,12 @@ public class ShotControl : MonoBehaviour
    
     // Updte is called once per frame
 
-    //void Start() {}
+    void Start() 
+    {
+           //射撃の発生場所＝Cameraの位置
+           shotPosition = Camera.main.transform.localPosition;//Vector3 座標の変数の型（x,y,z）
+           //shotPosition = Camera.main.transform.localPosition;// +shotPositionObject[i].transform.position;// +new Vector3(3 + i * 3, 0, 8);
+    }
 
     void Update()
     {
@@ -57,24 +63,26 @@ public class ShotControl : MonoBehaviour
                     if (lockOnObjects[i] == hitObject.tag)
                     {
                         LockOnOK = true;
-                        Debug.Log("ShotControl.cs lockOnObjects[targetNum]=" + i + "  hitObject.tag=" + hitObject.tag);
-                        return;
-                    }
+                        //Debug.Log("ShotControl.cs lockOnObjects[targetNum]=" + i + "  hitObject.tag=" + hitObject.tag);
+                        break;
+                    } 
                 }
 
                 if (!LockOnOK && hitObject.gameObject.layer == 9)//layer 9 Enemy
                 {
+                    lockOnEnemyObjects[targetNum]= hitObject;
                     lockOnObjects[targetNum] = hitObject.tag;
                     LockOnMark marker = (LockOnMark)Instantiate(_markerPrefab, _markerTransform);//_markerTransformの子オブジェクトとして作られる。
 
                     //marker.Initialize(hit.transform);
                     marker.SetTarget(hitObject.tag);
+                    marker.SetTargetObject(hitObject);
                     targetNum++;
                 }
             }
             else {//武器が変更されていた場合
                 if (targetNum != 0)
-                {
+                {//Delete()
                     //Destroy(lockOnMarks);
                     /*_markerTransform;
                     GameObject lockOnMarks = GameObject.FindGameObjectsWithTag("LockOn");
@@ -101,7 +109,6 @@ public class ShotControl : MonoBehaviour
 
                 for (i = 0; i < 2; i++)
                 {
-                    shotPosition = Camera.main.transform.localPosition;// +shotPositionObject[i].transform.position;// +new Vector3(3 + i * 3, 0, 8);
                     GameObject shotClone = (GameObject)Instantiate(_shotOriginal, shotPosition + new Vector3(-i * 2, 0, 0), Quaternion.identity);
 
                     //shotClone.transform.LookAt(hitObject.transform.localPosition);
@@ -123,27 +130,25 @@ public class ShotControl : MonoBehaviour
                 {
                     PlayerBase.GetInstance().PlayerAttack();
 
-                    //射撃の発生場所＝Cameraの位置
-                    shotPosition = Camera.main.transform.localPosition;//Vector3 座標の変数の型（x,y,z）
-
+                    
                     for (i = 0; i < lockOnObjects.Length; i++)
                         {
                             if (lockOnObjects[i] != "")
                             {
                                 //defoultの角度(回転なし)=（Quaternion.identity）で_shotCloneを生成
                                 //回転させたい場合はQuaternion move_q = Quaternion.Euler(0f,0f,1.0f);
-                                MissileBase missile = (MissileBase)Instantiate(_missilePrefab, shotPosition, Quaternion.identity);
-
-                                //shotClone.gameObject.transform.LookAt(lockOnObjects[targetNum].transform.localPosition);
+                                MissileBase missile = (MissileBase)Instantiate(_missilePrefab, shotPosition , Quaternion.identity);
 
                                 missile.SetTarget(lockOnObjects[i]);
                                 lockOnObjects[i] = "";
 
                                 //AddFoceメソッドで弾が発射＆移動
+                                missile.gameObject.transform.LookAt(lockOnEnemyObjects[i].transform.localPosition);
                                 Rigidbody shotRigidBody = missile.gameObject.GetComponent<Rigidbody>();//Objectに入っているComponentを取得
-                                shotRigidBody.AddForce(Camera.main.transform.forward * 100);//Cameraの向いている方向に1倍で力を加える。
+                                shotRigidBody.AddForce(Camera.main.transform.forward * 10);//Cameraの向いている方向に10倍で力を加える。
                                 //下のように一文が書くこともできる
-                                //shotClone.gameObject.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward*000);
+                                //shotClone.gameObject.GetComponent<Rigidbody>().AddForce(Camera.main.transform.forward*1000);
+                                lockOnEnemyObjects[i] = null;
                             }
                         }
                         targetNum = 0; _timerW2 = 0;
